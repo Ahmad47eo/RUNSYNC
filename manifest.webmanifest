@@ -1,0 +1,9 @@
+{
+  "name": "RUNSYNC — Find your wild",
+  "short_name": "RUNSYNC",
+  "description": "Nature-powered virtual running prototype",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0c1412",
+  "theme_color": "#101b18"
+}
