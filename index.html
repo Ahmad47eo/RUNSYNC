@@ -37,7 +37,7 @@
     </section>
     <section class="lower">
       <div class="panel"><div class="eyebrow">Little wins add up</div><h2>Daily missions</h2><div class="mission"><div><b>First steps</b><div class="small">Complete one session</div></div><span class="reward">+25 XP</span></div><div class="mission"><div><b>Trail explorer</b><div class="small">Select a route</div></div><span class="reward">+10 XP</span></div><div class="mission"><div><b>Consistency</b><div class="small">Earn 60 seconds of active time</div></div><span class="reward">+15 XP</span></div><p id="missionMessage" class="small">Pick a route to begin your adventure.</p></div>
-      <div class="panel"><div class="eyebrow">Connect carefully</div><h2>Device status</h2><p id="deviceStatus">No treadmill connected — safe demo mode.</p><div class="notice"><b>FitShow / 3Q treadmill safety</b><p>This version does not connect to Bluetooth or change treadmill speed. FitShow support for your exact 3Q second-generation model has not been verified. Keep speed controls in the treadmill or official FitShow app; never test unknown commands while walking or running.</p></div><p class="small">A future connection will only be added after the official SDK and your exact model compatibility are confirmed.</p></div>
+      <div class="panel"><div class="eyebrow">Bluetooth · read-only</div><h2>FTMS treadmill link</h2><p id="deviceStatus">Not connected — demo mode is safe to use.</p><div class="actions"><button id="ftmsConnectBtn" type="button">Connect treadmill</button><button class="secondary" id="ftmsDisconnectBtn" type="button" disabled>Disconnect</button></div><div class="stats"><div class="stat"><b id="ftmsSpeed">—</b><small>Speed · km/h</small></div><div class="stat"><b id="ftmsDistance">—</b><small>Distance · km</small></div><div class="stat"><b id="ftmsState">Idle</b><small>FTMS status</small></div></div><p class="small" id="ftmsHelp">Uses the standard Fitness Machine Service (FTMS) for live readings only. Your browser must support Web Bluetooth.</p><div class="notice"><b>Safety</b><p>This first connection is read-only: it does not send start, stop, or speed commands. Keep using Treadmill Pro for controls. Stop the belt before pairing and keep the safety stop accessible.</p></div></div>
       <div class="panel" id="compatibility"><div class="eyebrow">Research desk · official sources</div><h2>FitShow compatibility lab</h2><p>What we can verify so far — and what still needs confirmation.</p>
         <div class="mission"><div><b>FitShow supports smart fitness equipment</b><div class="small">Its official site describes Bluetooth hardware and app/software development services.</div></div><span class="pill">Verified</span></div>
         <div class="mission"><div><b>FitShow Bluetooth module documentation exists</b><div class="small">FitShow publishes general module guidance and a treadmill Bluetooth protocol document. These are not proof that the documents apply to this exact 3Q model.</div></div><span class="pill">General docs</span></div>
@@ -64,6 +64,79 @@
     $('startBtn').addEventListener('click',()=>{if(running){stop();return}running=true;$('startBtn').textContent='Pause session';$('sessionStatus').textContent=route?'Exploring '+route+'. Keep your attention on your surroundings.':'Session in progress. Choose a route anytime.';interval=setInterval(()=>{seconds++;render();if(seconds>=60&&!earned.minute){earned.minute=true;addXP(15);$('missionMessage').textContent='Consistency mission complete: +15 XP!'}},1000)});
     $('resetBtn').addEventListener('click',()=>{stop();seconds=0;route=null;earned={route:false,minute:false,session:false};$('sessionStatus').textContent='Ready when you are. Start when your setup is safe.';$('missionMessage').textContent='Pick a route to begin your adventure.';$('startBtn').textContent='Start a session';render()});
     document.querySelectorAll('[data-route]').forEach(btn=>btn.addEventListener('click',()=>{route=btn.dataset.route;$('sessionStatus').textContent=running?'Exploring '+route+'. Keep your attention on your surroundings.':'Selected: '+route+'. Press Start when ready.';$('missionMessage').textContent='Route selected: '+route+'.';if(!earned.route){earned.route=true;addXP(10)}}));
+
+    // FTMS integration is deliberately read-only. It only subscribes to Treadmill Data.
+    const FTMS_SERVICE = 0x1826;
+    const TREADMILL_DATA = 0x2ACD;
+    let ftmsDevice = null, ftmsCharacteristic = null;
+    function ftmsStatus(message){ $('deviceStatus').textContent=message; }
+    function resetFtmsReadings(){ $('ftmsSpeed').textContent='—'; $('ftmsDistance').textContent='—'; }
+    function parseTreadmillData(view){
+      if(view.byteLength < 4) return;
+      const flags = view.getUint16(0, true);
+      let offset = 2;
+      // FTMS flag bit 0 means the instantaneous-speed field is omitted.
+      if((flags & 0x0001) === 0 && offset + 2 <= view.byteLength){
+        const speed = view.getUint16(offset, true) / 100;
+        $('ftmsSpeed').textContent = Number.isFinite(speed) ? speed.toFixed(1) : '—';
+        offset += 2;
+      }
+      if(flags & 0x0002) offset += 2; // average speed
+      if(flags & 0x0004){
+        if(offset + 3 <= view.byteLength){
+          const metres = view.getUint8(offset) | (view.getUint8(offset+1)<<8) | (view.getUint8(offset+2)<<16);
+          $('ftmsDistance').textContent = (metres / 1000).toFixed(2);
+          offset += 3;
+        }
+      }
+      $('ftmsState').textContent='Live';
+    }
+    $('ftmsConnectBtn').addEventListener('click', async ()=>{
+      if(!navigator.bluetooth || !navigator.bluetooth.requestDevice){
+        ftmsStatus('This browser does not expose Web Bluetooth. Try a compatible browser; no device commands were sent.');
+        $('ftmsHelp').textContent='On iPhone, browser support varies. If Bluetooth selection never opens, this browser cannot connect directly.';
+        return;
+      }
+      try{
+        $('ftmsConnectBtn').disabled=true;
+        ftmsStatus('Choose the treadmill in the Bluetooth picker…');
+        resetFtmsReadings();
+        ftmsDevice = await navigator.bluetooth.requestDevice({acceptAllDevices:true, optionalServices:[FTMS_SERVICE]});
+        ftmsDevice.addEventListener('gattserverdisconnected', ()=>{
+          $('ftmsState').textContent='Disconnected';
+          $('ftmsConnectBtn').disabled=false;
+          $('ftmsDisconnectBtn').disabled=true;
+          ftmsStatus('Treadmill disconnected. Demo timer still works.');
+          ftmsCharacteristic=null;
+        }, {once:true});
+        ftmsStatus('Connecting to '+(ftmsDevice.name || 'Bluetooth device')+'…');
+        const server = await ftmsDevice.gatt.connect();
+        const service = await server.getPrimaryService(FTMS_SERVICE);
+        ftmsCharacteristic = await service.getCharacteristic(TREADMILL_DATA);
+        await ftmsCharacteristic.startNotifications();
+        ftmsCharacteristic.addEventListener('characteristicvaluechanged', e=>{
+          const value=e.target.value;
+          try{ parseTreadmillData(value); }catch(err){ $('ftmsState').textContent='Reading error'; }
+        });
+        $('ftmsState').textContent='Connected';
+        $('ftmsDisconnectBtn').disabled=false;
+        ftmsStatus('Connected to '+(ftmsDevice.name || 'FTMS treadmill')+'. Live readings only.');
+        $('ftmsHelp').textContent='If speed or distance stays blank, the treadmill may not include that field in its FTMS notifications.';
+      }catch(err){
+        $('ftmsConnectBtn').disabled=false;
+        $('ftmsDisconnectBtn').disabled=true;
+        $('ftmsState').textContent='Not connected';
+        ftmsStatus('Could not connect: '+(err && err.message ? err.message : 'Bluetooth error')+'. No speed commands were sent.');
+      }
+    });
+    $('ftmsDisconnectBtn').addEventListener('click', ()=>{
+      if(ftmsDevice && ftmsDevice.gatt && ftmsDevice.gatt.connected) ftmsDevice.gatt.disconnect();
+      ftmsDevice=null; ftmsCharacteristic=null;
+      $('ftmsConnectBtn').disabled=false; $('ftmsDisconnectBtn').disabled=true;
+      $('ftmsState').textContent='Disconnected'; resetFtmsReadings();
+      ftmsStatus('Disconnected. Use Treadmill Pro for treadmill controls.');
+    });
+
     $('raceBtn').addEventListener('click',()=>{$('raceMessage').textContent='Race mode is a planned feature. Online matchmaking is not active in this prototype.'});
     window.addEventListener('beforeunload',()=>{if(running)stop()});render();
   </script>
