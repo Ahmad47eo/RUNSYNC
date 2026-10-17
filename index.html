@@ -101,7 +101,7 @@
         $('ftmsConnectBtn').disabled=true;
         ftmsStatus('Choose the treadmill in the Bluetooth picker…');
         resetFtmsReadings();
-        ftmsDevice = await navigator.bluetooth.requestDevice({acceptAllDevices:true, optionalServices:[FTMS_SERVICE]});
+        ftmsDevice = await navigator.bluetooth.requestDevice({filters:[{services:['00001826-0000-1000-8000-00805f9b34fb']} ]});
         ftmsDevice.addEventListener('gattserverdisconnected', ()=>{
           $('ftmsState').textContent='Disconnected';
           $('ftmsConnectBtn').disabled=false;
