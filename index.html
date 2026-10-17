@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#101b18">
+  <meta name="description" content="RUNSYNC — nature-powered virtual running, missions and scenic routes.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <title>RUNSYNC — Find your wild</title>
+  <style>
+    :root{color-scheme:dark;--bg:#0c1412;--panel:#17221e;--panel2:#202d27;--text:#f0f5ee;--muted:#a8b8ad;--green:#b5ef9b;--line:#34443b}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 70% -15%,#365442 0,transparent 50%),var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+    .wrap{width:min(1120px,92%);margin:auto}.top{display:flex;justify-content:space-between;align-items:center;padding:22px 0}.brand{font-weight:900;letter-spacing:.18em}.brand span{color:var(--green)}.pill{border:1px solid var(--line);border-radius:99px;padding:7px 12px;color:var(--muted);font-size:.85rem}
+    .hero{padding:36px 0 24px;display:grid;grid-template-columns:1.2fr .8fr;gap:22px;align-items:stretch}.heroText,.session,.card,.panel{background:linear-gradient(145deg,#1b2b23,#111b17);border:1px solid var(--line);border-radius:24px;padding:26px}
+    .eyebrow{color:var(--green);font-size:.78rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase}h1{font-size:clamp(2.4rem,7vw,5.5rem);line-height:.94;letter-spacing:-.06em;margin:16px 0}h2{margin:0 0 12px;letter-spacing:-.03em}p{color:var(--muted)}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+    button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:12px 16px;font-weight:800;background:var(--green);color:#152218}button.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--line)}button:focus-visible{outline:3px solid white;outline-offset:3px}
+    .session{display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(160deg,#2a4935,#17251d)}.timer{font-size:clamp(2.8rem,7vw,4.5rem);font-weight:850;letter-spacing:-.05em;font-variant-numeric:tabular-nums}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}.stat{background:#0e1913a8;border-radius:14px;padding:12px}.stat b{display:block;font-size:1.25rem}.stat small{color:var(--muted)}
+    section{padding:26px 0}.sectionHead{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-bottom:15px}.routes{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.route{min-height:220px;display:flex;flex-direction:column;justify-content:end;overflow:hidden;background:linear-gradient(0deg,#0a130feF,#10201644),var(--art);background-size:cover;background-position:center}.route h3{font-size:1.45rem;margin:0}.route p{margin:5px 0 16px;color:#d3dfd5}.route button{align-self:flex-start}
+    .lower{display:grid;grid-template-columns:1fr 1fr;gap:14px}.mission{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}.mission:last-child{border-bottom:0}.reward{color:var(--green);font-weight:800;white-space:nowrap}
+    .notice{border:1px solid #736b3c;background:#2a291b;border-radius:16px;padding:16px;color:#eee5b4}.notice p{color:#d5d0ad;margin:6px 0 0}.foot{padding:28px 0 45px;color:var(--muted);font-size:.9rem}.small{font-size:.88rem}.progress{height:8px;background:#0c1410;border-radius:99px;overflow:hidden;margin:10px 0}.progress span{display:block;height:100%;width:0;background:var(--green);transition:width .2s}
+    @media(max-width:760px){.hero{grid-template-columns:1fr;padding-top:10px}.routes{grid-template-columns:1fr}.route{min-height:190px}.lower{grid-template-columns:1fr}.top{padding:16px 0}.heroText,.session,.card,.panel{padding:20px}}
+  </style>
+</head>
+<body>
+  <header class="wrap top"><div class="brand">RUN<span>SYNC</span></div><div class="pill">BROWSER PROTOTYPE · v0.1</div></header>
+  <main class="wrap">
+    <div class="hero">
+      <div class="heroText"><div class="eyebrow">Your next trail starts here</div><h1>FIND<br>YOUR WILD.</h1><p>Scenic routes, small missions, steady progress. Turn an ordinary workout into a journey through nature.</p><div class="actions"><button id="startBtn">Start a session</button><button class="secondary" id="resetBtn">Reset session</button></div></div>
+      <aside class="session"><div><div class="eyebrow">Current session</div><div class="timer" id="timer">00:00</div><p id="sessionStatus">Ready when you are. Start when your setup is safe.</p></div><div class="stats"><div class="stat"><b id="xp">0</b><small>Total XP</small></div><div class="stat"><b id="level">1</b><small>Trail level</small></div><div class="stat"><b id="sessions">0</b><small>Sessions</small></div></div><div class="progress"><span id="progress"></span></div><small id="progressLabel" class="small">0 / 100 XP to next level</small></aside>
+    </div>
+    <section><div class="sectionHead"><div><div class="eyebrow">Choose your scenery</div><h2>Explore routes</h2></div><span class="pill">3 routes · Demo</span></div>
+      <div class="routes">
+        <article class="card route" style="--art:linear-gradient(0deg,#0b1810e8,#16342144),url('https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=80')"><div class="eyebrow">Forest · 15 min</div><h3>Whispering Pines</h3><p>A calm trail beneath tall evergreen trees.</p><button data-route="Whispering Pines">Select route</button></article>
+        <article class="card route" style="--art:linear-gradient(0deg,#0b1810e8,#16342144),url('https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&w=1200&q=80')"><div class="eyebrow">Meadow · 20 min</div><h3>Golden Meadow</h3><p>Open fields and warm evening light.</p><button data-route="Golden Meadow">Select route</button></article>
+        <article class="card route" style="--art:linear-gradient(0deg,#0b1810e8,#16342144),url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80')"><div class="eyebrow">Mountains · 25 min</div><h3>Cloudline Ridge</h3><p>Big horizons and high mountain views.</p><button data-route="Cloudline Ridge">Select route</button></article>
+      </div><p class="small">Route photos load from Unsplash and need an internet connection. They are illustrative, not live video.</p>
+    </section>
+    <section class="lower">
+      <div class="panel"><div class="eyebrow">Little wins add up</div><h2>Daily missions</h2><div class="mission"><div><b>First steps</b><div class="small">Complete one session</div></div><span class="reward">+25 XP</span></div><div class="mission"><div><b>Trail explorer</b><div class="small">Select a route</div></div><span class="reward">+10 XP</span></div><div class="mission"><div><b>Consistency</b><div class="small">Earn 60 seconds of active time</div></div><span class="reward">+15 XP</span></div><p id="missionMessage" class="small">Pick a route to begin your adventure.</p></div>
+      <div class="panel"><div class="eyebrow">Connect carefully</div><h2>Device status</h2><p id="deviceStatus">No treadmill connected — safe demo mode.</p><div class="notice"><b>FitShow / 3Q treadmill safety</b><p>This version does not connect to Bluetooth or change treadmill speed. FitShow support for your exact 3Q second-generation model has not been verified. Keep speed controls in the treadmill or official FitShow app; never test unknown commands while walking or running.</p></div><p class="small">A future connection will only be added after the official SDK and your exact model compatibility are confirmed.</p></div>
+    </section>
+    <section><div class="panel"><div class="eyebrow">Race mode preview</div><h2>Run together, later</h2><p>Online multiplayer, live video routes, leaderboards and synced workouts are planned. This first version is a local prototype: no accounts, server, camera access or online races.</p><button class="secondary" id="raceBtn">Preview race mode</button><p id="raceMessage" class="small" aria-live="polite"></p></div></section>
+  </main>
+  <footer class="wrap foot">RUNSYNC is free and open source under the MIT License. Stay aware of your surroundings and follow your treadmill's safety instructions. Progress is saved in this browser on this device.</footer>
+  <script>
+    const $=id=>document.getElementById(id);
+    let running=false,seconds=0,interval=null,route=null,earned={route:false,minute:false,session:false};
+    let data={xp:0,sessions:0};
+    try{data={...data,...JSON.parse(localStorage.getItem('runsync-save')||'{}')}}catch(e){}
+    function save(){try{localStorage.setItem('runsync-save',JSON.stringify(data))}catch(e){}render()}
+    function addXP(n){data.xp=(data.xp||0)+n;save()}
+    function render(){ $('xp').textContent=data.xp||0;$('sessions').textContent=data.sessions||0;const level=Math.floor((data.xp||0)/100)+1;$('level').textContent=level;const into=(data.xp||0)%100;$('progress').style.width=into+'%';$('progressLabel').textContent=into+' / 100 XP to next level';$('timer').textContent=String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0')}
+    function stop(){running=false;clearInterval(interval);interval=null;$('startBtn').textContent='Resume session';$('sessionStatus').textContent='Paused. Stop safely before using any device controls.'}
+    $('startBtn').addEventListener('click',()=>{if(running){stop();return}running=true;$('startBtn').textContent='Pause session';$('sessionStatus').textContent=route?'Exploring '+route+'. Keep your attention on your surroundings.':'Session in progress. Choose a route anytime.';interval=setInterval(()=>{seconds++;render();if(seconds>=60&&!earned.minute){earned.minute=true;addXP(15);$('missionMessage').textContent='Consistency mission complete: +15 XP!'}},1000)});
+    $('resetBtn').addEventListener('click',()=>{stop();seconds=0;route=null;earned={route:false,minute:false,session:false};$('sessionStatus').textContent='Ready when you are. Start when your setup is safe.';$('missionMessage').textContent='Pick a route to begin your adventure.';$('startBtn').textContent='Start a session';render()});
+    document.querySelectorAll('[data-route]').forEach(btn=>btn.addEventListener('click',()=>{route=btn.dataset.route;$('sessionStatus').textContent=running?'Exploring '+route+'. Keep your attention on your surroundings.':'Selected: '+route+'. Press Start when ready.';$('missionMessage').textContent='Route selected: '+route+'.';if(!earned.route){earned.route=true;addXP(10)}}));
+    $('raceBtn').addEventListener('click',()=>{$('raceMessage').textContent='Race mode is a planned feature. Online matchmaking is not active in this prototype.'});
+    window.addEventListener('beforeunload',()=>{if(running)stop()});render();
+  </script>
+</body>
+</html>
