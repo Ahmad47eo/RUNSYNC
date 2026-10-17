@@ -6,6 +6,10 @@
   <meta name="theme-color" content="#101b18">
   <meta name="description" content="RUNSYNC — nature-powered virtual running, missions and scenic routes.">
   <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="RUNSYNC">
   <title>RUNSYNC — Find your wild</title>
   <style>
     :root{color-scheme:dark;--bg:#0c1412;--panel:#17221e;--panel2:#202d27;--text:#f0f5ee;--muted:#a8b8ad;--green:#b5ef9b;--line:#34443b}
@@ -140,5 +144,6 @@
     $('raceBtn').addEventListener('click',()=>{$('raceMessage').textContent='Race mode is a planned feature. Online matchmaking is not active in this prototype.'});
     window.addEventListener('beforeunload',()=>{if(running)stop()});render();
   </script>
+  <script src="./runsync-enhancements.js"></script>
 </body>
 </html>
