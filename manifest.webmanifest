@@ -1,9 +1,19 @@
 {
-  "name": "RUNSYNC — Find your wild",
+  "name": "RUNSYNC — Fitness Adventure",
   "short_name": "RUNSYNC",
-  "description": "Nature-powered virtual running prototype",
+  "description": "Local-first fitness game with read-only FTMS treadmill telemetry, workout history, virtual worlds and achievements.",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#0c1412",
-  "theme_color": "#101b18"
+  "theme_color": "#101b18",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }
